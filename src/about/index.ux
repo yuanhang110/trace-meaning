@@ -1,0 +1,25 @@
+<template>
+  <div class="about-page"><image src="/common/images/logo.png"></image> <text>关于页面</text></div>
+</template>
+
+<script>
+export default {
+  onInit() {
+    this.$page.setTitleBar({ text: '关于' })
+  }
+}
+</script>
+
+<style lang="less">
+@import '../common/style.less';
+
+.about-page {
+  height: 100%;
+  width: 100%;
+  .flex-box-mixins(column, center, center);
+}
+
+image {
+  margin: 100px 0;
+}
+</style>

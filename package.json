@@ -1,0 +1,44 @@
+{
+  "name": "xinyang",
+  "version": "1.0.0",
+  "subversion": {
+    "toolkit": "0.4.2"
+  },
+  "description": "迹意项目",
+  "scripts": {
+    "start": "hap server --watch",
+    "server": "hap server",
+    "postinstall": "hap postinstall",
+    "debug": "hap debug",
+    "build": "hap build",
+    "release": "hap release",
+    "watch": "hap watch",
+    "hap-update": "hap update",
+    "prettier": "prettier --write '**/*.ux'"
+  },
+  "devDependencies": {
+    "@types/quickapp": "git+https://github.com/vivoquickapp/quickapp-types.git",
+    "apex-ui": "latest",
+    "babel-eslint": "^10.0.2",
+    "eslint": "^5.16.0",
+    "eslint-plugin-hybrid": "0.0.5",
+    "hap-toolkit": "latest",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "prettier": "^1.15.3",
+    "prettier-plugin-quickapp": "^0.1.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false,
+    "printWidth": 85,
+    "proseWrap": "never"
+  },
+  "keywords": [
+    "快应用",
+    "迹意项目，改自新闻模板"
+  ],
+  "dependencies": {
+    "hydrogen-js-sdk": "^2.2.2"
+  }
+}

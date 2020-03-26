@@ -1,0 +1,64 @@
+{
+  "package": "com.jiyi",
+  "name": "迹意",
+  "versionName": "1.0.0",
+  "versionCode": "1",
+  "minPlatformVersion": "101",
+  "icon": "/common/logo.png",
+  "features": [
+    {
+      "name": "system.prompt"
+    },
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.device"
+    },
+    {
+      "name": "system.fetch"
+    },
+    {
+      "name": "system.shortcut"
+    }
+  ],
+  "permissions": [
+    {
+      "origin": "*"
+    }
+  ],
+  "config": {
+    "logLevel": "debug"
+  },
+  "router": {
+    "entry": "user",
+    "pages": {
+      "home": {
+        "component": "index"
+      },
+      "detail": {
+        "component": "index"
+      },
+      "user": {
+        "component": "index"
+      },
+      "login": {
+        "component": "index"
+      },
+      "about": {
+        "component": "index"
+      }
+    }
+  },
+  "display": {
+    "titleBarBackgroundColor": "#fff",
+    "titleBar": false,
+    "titleBarTextColor": "#000000",
+    "menu": false,
+    "pages": {
+      "home": {
+        "titleBarBackgroundColor": "#42b3f5"
+      }
+    }
+  }
+}

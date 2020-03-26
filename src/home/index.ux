@@ -1,0 +1,544 @@
+<template>
+  <div class="page">
+    <div class="search-wrap">
+      <image
+        src="/common/images/b2j.png"
+        class="back-img"
+        onclick="goResult"
+        show="{{searchFocus}}"
+      ></image>
+      <div class="search-box">
+        <image src="/common/images/b2q.png" onclick="showSearch"></image>
+        <text
+          class="keywords text-one-line"
+          onclick="showSearch"
+          show="{{!searchFocus}}"
+          >{{ currentKeywords }}</text
+        >
+        <input
+          placeholder="搜你想搜的"
+          id="search_input"
+          value="{{searchValue}}"
+          onchange="setValue"
+          show="{{searchFocus}}"
+        />
+      </div>
+      <text class="search-text" onclick="doSearch" show="{{searchFocus}}">搜索</text>
+    </div>
+    <!-- 搜索页 -->
+    <list
+      class="keywords-list"
+      show="{{searchFocus&&currentKeywordsList.length===3}}"
+    >
+      <list-item
+        type="keywordlist"
+        for="currentKeywordsList"
+        class="keywords-list-item"
+        onclick="doSearch($item)"
+        ><text class="text-one-line">{{ $item }}</text></list-item
+      >
+    </list>
+    <div class="list-box" show="{{historyList.length>0&&searchFocus}}">
+      <div class="title">
+        <text>历史记录</text>
+        <image src="/common/images/aoq.png" onclick="delHistory"></image>
+      </div>
+      <list
+        class="record-list"
+        style="height: {{Math.ceil(historyList.length/2)*70+1}}px"
+      >
+        <list-item
+          class="record-list-item"
+          for="historyList"
+          type="historyItem"
+          onclick="doSearch($item)"
+        >
+          <text class="text-one-line">{{ $item }}</text>
+        </list-item>
+        <list-item
+          class="record-list-item"
+          type="historyItem"
+          if="historyList.length%2!=0"
+          ><text> </text
+        ></list-item>
+      </list>
+    </div>
+    <div onclick="setGuessShow(true)" class="show-guess" show="{{!showGuess}}">
+      <image src="/common/images/bci.png"></image>
+      <text>查看全部推荐词</text>
+    </div>
+    <div class="list-box" show="{{searchFocus&&showGuess}}">
+      <div class="title">
+        <text>猜你想搜</text>
+        <image src="/common/images/awi.png" onclick="setGuessShow(false)"></image>
+      </div>
+      <list
+        class="record-list"
+        style="height: {{Math.ceil(guessList.length/2)*70+1}}px"
+      >
+        <list-item class="record-list-item" for="guessList" type="guessItem">
+          <text class="text-one-line" onclick="doSearch($item)">{{ $item }}</text>
+        </list-item>
+        <list-item
+          class="record-list-item"
+          type="historyItem"
+          if="guessList.length%2!=0"
+          ><text> </text
+        ></list-item>
+      </list>
+    </div>
+    <div show="{{searchFocus}}" style="flex:1;background-color: #fff"></div>
+
+    <!-- 消息列表 -->
+    <list
+      class="content-list"
+      scrollpage="{{scrollpage}}}"
+      show="{{!searchFocus}}"
+      onscrollbottom="renderMoreListItem"
+    >
+      <list-item type="news" class="content-list-item">
+        <div
+          class="itemBox"
+          for="news in contentList"
+          onclick="goDetail(news)"
+          if="{{news.type===(tabIndex===0?'img':'video')}}"
+        >
+          <text class="title">{{ news.title }}</text>
+          <div class="img-box" show="{{news.img.length>0&&news.type==='img'}}">
+            <image
+              for="(imgIndex, img) in news.img"
+              src="{{img}}"
+              class="{{news.img.length===1?'big-img':'three-img'}}"
+              show="{{imgIndex<3}}"
+            ></image>
+          </div>
+          <div class="img-box" show="{{news.img.length>0&&news.type==='video'}}">
+            <video
+              src="{{news.img[0]}}"
+              class="big-img"
+              poster="{{news.img[1]}}"
+            ></video>
+          </div>
+          <div class="content-foot">
+            <text class="tag {{news.tag?'':'no-border'}}">{{ news.tag }}</text>
+            <text>{{ news.author }}</text>
+            <text>{{ news.commentNum }}</text>
+            <text>{{ news.time }}</text>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="loadMore" class="load-more">
+        <progress type="circular"></progress>
+        <text>加载更多</text>
+      </list-item>
+    </list>
+    <div show="{{!searchFocus}}" class="foot-wrap">
+      <div class="foot-box" for="tabList" onclick="toggleTab($idx)">
+        <image src="{{$idx===tabIndex?$item.imgActive:$item.imgNormal}}"></image>
+        <text
+          style="color: {{$idx===tabIndex?'#e7655f':'#333'}};text-align:center;"
+          >{{ $item.label }}</text
+        >
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+.page {
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #f4f5f7;
+}
+
+/* 顶部搜索框 */
+.search-wrap {
+  width: 100%;
+  height: 100px;
+  padding: 10px 30px;
+  background-color: #39a9f3;
+}
+
+.search-box {
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.search-box input {
+  margin-left: 15px;
+  font-size: 32px;
+}
+
+.keywords {
+  margin-left: 10px;
+  color: #000;
+}
+
+.back-img {
+  width: 50px;
+  margin-right: 20px;
+  align-self: center;
+}
+
+.search-text {
+  color: #fff;
+  margin-left: 20px;
+  font-size: 36px;
+}
+
+/* 搜索页 */
+.keywords-list {
+  columns: 3;
+  height: 70px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-bottom-color: #e6e6e6;
+}
+
+.keywords-list-item {
+  height: 70px;
+  padding: 0 30px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-right-color: #e6e6e6;
+}
+
+.keywords-list-item text {
+  color: #000;
+}
+
+.itemBox {
+  flex-direction: column;
+  width: 100%;
+}
+.list-box {
+  margin-bottom: 10px;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-top-color: #e6e6e6;
+  border-bottom-color: #e6e6e6;
+}
+
+.list-box .title {
+  height: 70px;
+  padding: 0 30px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-box .title image {
+  width: 30px;
+  align-self: center;
+}
+
+.record-list {
+  height: 200px;
+  columns: 2;
+}
+
+.record-list-item {
+  height: 70px;
+  padding: 0 30px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-top-color: #e6e6e6;
+  border-right-color: #e6e6e6;
+}
+
+.record-list-item text {
+  color: #000;
+}
+
+.show-guess {
+  padding: 20px 0;
+  height: 100px;
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
+}
+
+.show-guess image {
+  margin-right: 10px;
+  align-self: center;
+}
+
+/* 类型列表 */
+.type-list {
+  flex: 1;
+  height: 100px;
+  flex-direction: row;
+  border: 1px solid #e6e6e6;
+}
+
+.type-list-item {
+  width: 130px;
+  height: 100px;
+  justify-content: center;
+}
+
+.type-list-item text {
+  font-size: 40px;
+  color: #000;
+}
+
+.content-list {
+  flex: 1;
+  padding: 0 30px;
+  background-color: #fff;
+}
+
+.content-list-item {
+  flex-direction: column;
+  padding: 30px 0;
+  border: 1px solid transparent;
+  border-bottom-color: #e6e6e6;
+}
+
+.content-list-item .title {
+  font-size: 40px;
+  color: #000;
+}
+
+.img-box {
+  margin-top: 10px;
+  justify-content: space-between;
+}
+
+.three-img {
+  width: 32%;
+  height: 180px;
+}
+
+.big-img {
+  width: 100%;
+  height: 380px;
+}
+
+.content-foot {
+  margin-top: 10px;
+  align-items: center;
+}
+
+.content-foot text {
+  margin-right: 12px;
+}
+
+.content-foot .tag {
+  font-size: 24px;
+  height: 34px;
+  padding: 4px;
+  border: 1px solid #42b3f5;
+  border-radius: 3px;
+  color: #1696ec;
+}
+
+.content-foot .no-border {
+  width: 0;
+  margin-right: 0;
+  border: 1px solid transparent;
+}
+.load-more {
+  justify-content: center;
+}
+
+/* 底部导航 */
+.foot-wrap {
+  width: 100%;
+  height: 110px;
+  padding: 0 60px;
+  flex-direction: row;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  border-top-color: #e6e6e6;
+  background-color: #f4f5f7;
+}
+
+.foot-box {
+  height: 110px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.foot-box text {
+  font-size: 30px;
+}
+.text-one-line {
+  lines: 1;
+  text-overflow: ellipsis;
+}
+</style>
+
+<script>
+import device from '@system.device'
+import router from '@system.router'
+import data from '../data.js'
+export default {
+  private: {
+    tabList: [],
+    scrollpage: false,
+    currentKeywords: '',
+    currentKeywordsList: [],
+    searchFocus: false,
+    searchIndex: 0,
+    searchValue: '',
+    showGuess: true,
+    keyInterval: '',
+    keywordsList: [
+      '天山 | 天池 | 火焰山',
+      '喀纳斯 | 禾木村 | 葡萄沟',
+      '九寨沟 | 峨眉山 | 乐山大佛'
+    ],
+    typeList: [
+      {
+        name: '关注',
+        value: ''
+      },
+      {
+        name: '拉拉',
+        value: ''
+      },
+      {
+        name: '热点',
+        value: ''
+      },
+      {
+        name: '视频',
+        value: ''
+      },
+      {
+        name: '视频',
+        value: ''
+      },
+      {
+        name: '视频',
+        value: ''
+      },
+      {
+        name: '视频',
+        value: ''
+      },
+      {
+        name: '视频',
+        value: ''
+      },
+      {
+        name: '视频',
+        value: ''
+      }
+    ],
+    contentList: [],
+    news: [],
+    historyList: [],
+    guessList: [
+      '天山推荐路线',
+      '新疆游玩景点推荐',
+      '香港景点',
+    ]
+  },
+  protected: {
+    keyword: '',
+    tabIndex: 0,
+    isLogin: 0,
+    userName: 'xyhtry'
+  },
+  onInit() {
+    let that = this
+    that.contentList = data.news
+    that.news = data.news
+    that.tabList = data.tabData
+    that.tabIndex = parseInt(that.tabIndex)
+  },
+  onHide() {
+    clearInterval(this.keyInterval)
+  },
+  onShow() {
+    this.setKeyInterval()
+  },
+  setKeyInterval: function() {
+    let that = this
+    that.currentKeywords = that.keywordsList[that.searchIndex]
+    that.keyInterval = setInterval(function() {
+      if (that.searchIndex === that.keywordsList.length - 1) {
+        that.searchIndex = 0
+      } else {
+        that.searchIndex++
+      }
+      that.currentKeywords = that.keywordsList[that.searchIndex]
+    }, 3000)
+  },
+  setGuessShow: function(bool) {
+    this.showGuess = bool
+  },
+  showSearch: function() {
+    let that = this
+    that.currentKeywordsList = that.currentKeywords.split(' | ')
+    that.setSearchFocus(true)
+  },
+  delHistory: function() {
+    this.historyList = []
+  },
+  setSearchFocus: function(bool) {
+    let that = this
+    that.searchFocus = bool
+    that.$element('search_input').focus({ focus: bool })
+  },
+  setValue: function(e) {
+    this.searchValue = e.text
+  },
+  doSearch: function(text) {
+    let that = this
+    let flag = true
+    that.searchValue = text || that.searchValue
+    that.historyList.forEach(e => {
+      if (e === that.searchValue) {
+        flag = false
+      }
+    })
+    if (flag) {
+      that.historyList.push(that.searchValue)
+    }
+    that.currentKeywords = that.searchValue
+    clearInterval(that.keyInterval)
+    that.setSearchFocus(false)
+  },
+  goResult: function() {
+    let that = this
+    clearInterval(that.keyInterval)
+    that.setKeyInterval()
+    that.setSearchFocus(false)
+  },
+  renderMoreListItem: function() {
+    this.contentList = this.contentList.concat(this.news)
+  },
+  //点击导航栏
+  toggleTab: function(index) {
+    if (index === 2) {
+      router.replace({
+        uri: this.tabList[index].url,
+        params: {
+          userName: this.userName,
+          isLogin: this.isLogin
+        }
+      })
+      return
+    }
+    this.tabIndex = index
+  },
+  goDetail: function(news) {
+    let that = this
+    if (news.type === 'img') {
+      router.push({
+        uri: '/detail',
+        params: {
+          info: news
+        }
+      })
+    }
+  }
+}
+</script>

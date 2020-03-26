@@ -1,0 +1,147 @@
+<template>
+  <div class="page">
+    <div class="go-back">
+      <image src="/common/images/b9c.png" onclick="goBack"></image>
+    </div>
+    <div class="tip-box">
+      <text>登录你的账号，精彩永不丢失</text>
+    </div>
+    <div class="login-wrap">
+      <div class="input-box">
+        <input type="number" placeholder="请输入手机号" value="{{phoneValue}}" maxlength="11" onchange="setPhoneValue" />
+      </div>
+      <div class="input-box">
+        <input type="password" placeholder="请输入密码" value="{{passwordValue}}" maxlength="8" onchange="setPasswordValue" />
+      </div>
+      <div class="btn-box {{btnDisabled?'disabled':''}}" disabled="{{btnDisabled}}" onclick="goUser">
+        <text>登录</text>
+      </div>
+      <div class="protocol-box">
+        <text>点击查看<span class="blue">“用户协议”</span>和<span class="blue">“隐私协议”</span></text>
+      </div>
+    </div>
+  </div>
+</template>
+<style lang="less">
+.page {
+  background-color: #f4f5f7;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.go-back {
+  justify-content: flex-end;
+  padding-right: 40px;
+  image {
+    margin-top: 60px;
+    width: 30px;
+  }
+}
+.tip-box {
+  justify-content: center;
+  margin-top: 30px;
+  height: 200px;
+  align-items: center;
+  text {
+    font-size: 40px;
+    color: #000;
+  }
+}
+.login-wrap {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+}
+.input-box {
+  width: 84%;
+  margin-bottom: 70px;
+  background-color: #fff;
+  height: 100px;
+  border: 1px solid #e6e6e6;
+  border-radius: 50px;
+  padding: 0 50px;
+  input {
+    width: 100%;
+  }
+}
+.btn-box {
+  width: 84%;
+  height: 100px;
+  justify-content: center;
+  background-color: #c44944;
+  border-radius: 50px;
+  text {
+    color: #fff;
+    font-size: 38px;
+  }
+}
+.disabled {
+  background-color: #efacab;
+}
+.protocol-box {
+  margin-top: 30px;
+  justify-content: center;
+  text {
+    color: #000;
+    .blue {
+      color: #5c76a0;
+    }
+  }
+}
+</style>
+<script>
+import fetch from "@system.fetch"
+import router from '@system.router'
+var Bmob = require('../common/js/Bmob-2.2.1.min.js');
+// 打开 main.js
+//import Bmob from "hydrogen-js-sdk";
+// 项目其他页面使用跟小程序一样使用Bmob对象即可，例如：
+ Bmob.initialize("5b5edc29c8db3ac6", "601253");
+export default {
+  private: {
+    btnDisabled: true,
+    passwordValue: '',
+    phoneValue: ''
+  },
+  onInit() { },
+  setPasswordValue: function (e) {
+    this.passwordValue = e.text
+    this.setBtnStatus()
+  },
+  setPhoneValue: function (e) {
+    this.phoneValue = e.text
+    this.setBtnStatus()
+  },
+  setBtnStatus: function () {
+     console.log("11111")
+   /*  
+    Bmob.User.login("15673395644", "12345678").then(res => {
+        if (res.code) {
+          console.log('登陆失败', JSON.stringify(res))
+          return
+        }
+        console.log('登陆成功，并跳转...')
+      }).catch(err => {
+        console.log('登陆失败', err)
+      });*/
+      
+    if (this.phoneValue.length === 11 && this.passwordValue.length > 6) {
+
+      this.btnDisabled = false
+    } else {
+      this.btnDisabled = true
+    }
+  },
+  goBack: function () {
+    router.back()
+  },
+  goUser: function () {
+    router.replace({
+      uri: '/user',
+      params: {
+        isLogin: 1,
+        userName: this.phoneValue
+      }
+    })
+  }
+}
+</script>

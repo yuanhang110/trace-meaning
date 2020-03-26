@@ -1,0 +1,27 @@
+<template>
+  <div class="userHeader">
+    <div class="headerTitle"><text>登录推荐更精准</text></div>
+    <div class="header_body">
+      <div class="header_body_left side"></div>
+      <div class="header_body_middle">
+        <image class="imglog" for="(index,uri) in imgArr" src="{{uri}}"></image>
+      </div>
+      <div class="header_body_right side">
+        <image class="header_body_right_img" src="{{rightSrc}}"></image>
+      </div>
+    </div>
+  </div>
+</template>
+<style lang="less">
+@import './style.less';
+</style>
+<script>
+export default {
+  props: [],
+  data: {
+    imgArr: ['/user/img/phone.png', '/user/img/wx.png', '/user/img/qq.png'],
+    rightSrc: '/user/img/right.png'
+  },
+  onInit() {}
+}
+</script>
